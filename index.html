@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRTZA WORKSPACE | PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #38bdf8;
+            --accent: #818cf8;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --border: rgba(255,255,255,0.1);
+        }
+
+        body {
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: 'Inter', sans-serif; display: flex; height: 100vh;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 260px; background: #020617; border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 20px;
+        }
+
+        .logo { font-weight: 800; font-size: 20px; color: var(--primary); letter-spacing: 1px; margin-bottom: 40px; }
+        
+        .nav-item {
+            padding: 12px 15px; border-radius: 8px; cursor: pointer;
+            margin-bottom: 5px; transition: 0.2s; color: #94a3b8;
+        }
+
+        .nav-item:hover, .nav-item.active { background: var(--card-bg); color: var(--primary); }
+
+        /* --- Main Content --- */
+        .main { flex: 1; overflow-y: auto; padding: 40px; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+
+        /* --- Stats Row --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+        .stat-card small { color: #94a3b8; display: block; margin-bottom: 5px; }
+        .stat-card span { font-size: 24px; font-weight: 700; }
+
+        /* --- Workspace Areas --- */
+        .content-box { background: var(--card-bg); border-radius: 15px; padding: 25px; border: 1px solid var(--border); }
+        
+        .input-row { display: flex; gap: 10px; margin-bottom: 25px; }
+        input, select, textarea {
+            background: #0f172a; border: 1px solid var(--border); color: white;
+            padding: 12px; border-radius: 8px; outline: none; flex: 1;
+        }
+
+        .btn-main {
+            background: var(--primary); color: #000; border: none; padding: 10px 20px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* --- Dynamic Task List --- */
+        .task-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px; border-bottom: 1px solid var(--border); animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-right: 10px; }
+        .tag-work { background: #3730a3; }
+        .tag-personal { background: #065f46; }
+
+        .completed { opacity: 0.4; text-decoration: line-through; }
+
+        /* --- Timer Module --- */
+        .timer-box { text-align: center; margin-top: auto; padding: 20px; background: #1e1b4b; border-radius: 12px; }
+        #timer-display { font-size: 32px; font-weight: 800; color: var(--primary); margin: 10px 0; }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">IRTZA WORKSPACE</div>
+        <div class="nav-item active" onclick="showTab('tasks')">Dashboard</div>
+        <div class="nav-item" onclick="showTab('notes')">Research Logs</div>
+        
+        <div class="timer-box">
+            <small>FOCUS SESSION</small>
+            <div id="timer-display">25:00</div>
+            <button class="btn-main" id="timerBtn" onclick="toggleTimer()" style="width: 100%;">START</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h2 id="view-title">Project Dashboard</h2>
+            <div id="current-date" style="color: #94a3b8;"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <small>Active Tasks</small>
+                <span id="stat-active">0</span>
+            </div>
+            <div class="stat-card">
+                <small>Completion Rate</small>
+                <span id="stat-rate">0%</span>
+            </div>
+            <div class="stat-card">
+                <small>Database Status</small>
+                <span style="color: #4ade80; font-size: 14px;">● ONLINE</span>
+            </div>
+        </div>
+
+        <div id="tasks-view" class="content-box">
+            <div class="input-row">
+                <input type="text" id="taskIn" placeholder="Add a new project milestone...">
+                <select id="catIn" style="max-width: 120px;">
+                    <option value="work">Work</option>
+                    <option value="personal">Personal</option>
+                </select>
+                <button class="btn-main" onclick="db_addTask()">Add Task</button>
+            </div>
+            <div id="taskList"></div>
+        </div>
+
+        <div id="notes-view" class="content-box hidden">
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="text" id="noteTitle" placeholder="Research Topic...">
+                <textarea id="noteContent" rows="5" placeholder="Document your findings here..."></textarea>
+                <button class="btn-main" onclick="db_addNote()">Save To Database</button>
+            </div>
+            <div id="noteList" style="margin-top: 30px;"></div>
+        </div>
+    </div>
+
+<script>
+    // --- FULL STACK MOCK DATABASE ---
+    let appData = JSON.parse(localStorage.getItem('irtza_pro_db')) || {
+        tasks: [],
+        notes: []
+    };
+
+    function syncDB() {
+        localStorage.setItem('irtza_pro_db', JSON.stringify(appData));
+        render();
+    }
+
+    // --- TASK CONTROLLER ---
+    function db_addTask() {
+        const text = document.getElementById('taskIn').value;
+        const cat = document.getElementById('catIn').value;
+        if(!text) return;
+
+        appData.tasks.unshift({
+            id: Date.now(),
+            text: text,
+            category: cat,
+            done: false
+        });
+        document.getElementById('taskIn').value = '';
+        syncDB();
+    }
+
+    function toggleTask(id) {
+        appData.tasks = appData.tasks.map(t => t.id === id ? {...t, done: !t.done} : t);
+        syncDB();
+    }
+
+    function deleteTask(id) {
+        appData.tasks = appData.tasks.filter(t => t.id !== id);
+        syncDB();
+    }
+
+    // --- NOTE CONTROLLER ---
+    function db_addNote() {
+        const title = document.getElementById('noteTitle').value;
+        const content = document.getElementById('noteContent').value;
+        if(!title || !content) return;
+
+        appData.notes.unshift({
+            id: Date.now(),
+            title,
+            content,
+            date: new Date().toLocaleDateString()
+        });
+        document.getElementById('noteTitle').value = '';
+        document.getElementById('noteContent').value = '';
+        syncDB();
+    }
+
+    // --- UI RENDERER ---
+    function render() {
+        // Render Tasks
+        const tList = document.getElementById('taskList');
+        tList.innerHTML = appData.tasks.map(t => `
+            <div class="task-item">
+                <div onclick="toggleTask(${t.id})" style="cursor:pointer; flex:1">
+                    <span class="tag tag-${t.category}">${t.category}</span>
+                    <span class="${t.done ? 'completed' : ''}">${t.text}</span>
+                </div>
+                <button style="background:transparent; border:none; color:#ef4444; cursor:pointer" onclick="deleteTask(${t.id})">Delete</button>
+            </div>
+        `).join('');
+
+        // Render Notes
+        const nList = document.getElementById('noteList');
+        nList.innerHTML = appData.notes.map(n => `
+            <div style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom:15px; border-left:4px solid var(--primary)">
+                <h4 style="margin:0 0 10px 0; color:var(--primary)">${n.title}</h4>
+                <p style="font-size:14px; color:#94a3b8">${n.content}</p>
+                <small style="opacity:0.5">${n.date}</small>
+            </div>
+        `).join('');
+
+        // Update Stats
+        const activeCount = appData.tasks.filter(t => !t.done).length;
+        const total = appData.tasks.length;
+        document.getElementById('stat-active').innerText = activeCount;
+        document.getElementById('stat-rate').innerText = total === 0 ? '0%' : Math.round(((total - activeCount) / total) * 100) + '%';
+    }
+
+    // --- VIEW CONTROLLER ---
+    function showTab(tab) {
+        document.getElementById('tasks-view').classList.toggle('hidden', tab !== 'tasks');
+        document.getElementById('notes-view').classList.toggle('hidden', tab !== 'notes');
+        document.getElementById('view-title').innerText = tab === 'tasks' ? 'Project Dashboard' : 'Research Logs';
+        
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.remove('active');
+            if(el.innerText.toLowerCase().includes(tab.slice(0,3))) el.classList.add('active');
+        });
+    }
+
+    // --- TIMER LOGIC ---
+    let timer;
+    let timeLeft = 1500;
+    function toggleTimer() {
+        const btn = document.getElementById('timerBtn');
+        if (timer) {
+            clearInterval(timer);
+            timer = null;
+            btn.innerText = "START";
+        } else {
+            btn.innerText = "PAUSE";
+            timer = setInterval(() => {
+                timeLeft--;
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                document.getElementById('timer-display').innerText = 
+                    `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    alert("Focus session complete!");
+                }
+            }, 1000);
+        }
+    }
+
+    document.getElementById('current-date').innerText = new Date().toDateString();
+    render();
+</script>
+</body>
+</html>
