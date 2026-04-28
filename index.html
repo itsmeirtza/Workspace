@@ -2,167 +2,192 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRTZA WORKSPACE | PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IRTZA WORKSPACE | MOBILE-PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #38bdf8;
-            --accent: #818cf8;
             --bg: #0f172a;
             --card-bg: #1e293b;
             --text: #f1f5f9;
             --border: rgba(255,255,255,0.1);
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
             margin: 0; background: var(--bg); color: var(--text);
-            font-family: 'Inter', sans-serif; display: flex; height: 100vh;
+            font-family: 'Inter', sans-serif; display: flex; 
+            flex-direction: column; min-height: 100vh;
         }
 
-        /* --- Sidebar Navigation --- */
+        /* --- Sidebar (Desktop) & Bottom Nav (Mobile) --- */
         .sidebar {
             width: 260px; background: #020617; border-right: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 20px;
+            position: fixed; height: 100vh; z-index: 100;
         }
 
-        .logo { font-weight: 800; font-size: 20px; color: var(--primary); letter-spacing: 1px; margin-bottom: 40px; }
+        .logo { font-weight: 800; font-size: 20px; color: var(--primary); margin-bottom: 30px; }
         
+        .nav-items { display: flex; flex-direction: column; gap: 5px; }
         .nav-item {
-            padding: 12px 15px; border-radius: 8px; cursor: pointer;
-            margin-bottom: 5px; transition: 0.2s; color: #94a3b8;
+            padding: 14px 15px; border-radius: 10px; cursor: pointer;
+            color: #94a3b8; transition: 0.2s; display: flex; align-items: center; gap: 10px;
         }
-
-        .nav-item:hover, .nav-item.active { background: var(--card-bg); color: var(--primary); }
+        .nav-item.active { background: var(--card-bg); color: var(--primary); font-weight: 600; }
 
         /* --- Main Content --- */
-        .main { flex: 1; overflow-y: auto; padding: 40px; }
+        .main { 
+            flex: 1; margin-left: 260px; padding: 30px; 
+            max-width: 100%; transition: 0.3s;
+        }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        /* --- Stats Container --- */
+        .stats-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 15px; margin-bottom: 25px; 
+        }
+        .stat-card { 
+            background: var(--card-bg); padding: 15px; border-radius: 12px; 
+            border: 1px solid var(--border); text-align: center;
+        }
 
-        /* --- Stats Row --- */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
-        .stat-card small { color: #94a3b8; display: block; margin-bottom: 5px; }
-        .stat-card span { font-size: 24px; font-weight: 700; }
-
-        /* --- Workspace Areas --- */
-        .content-box { background: var(--card-bg); border-radius: 15px; padding: 25px; border: 1px solid var(--border); }
+        /* --- Workspace --- */
+        .content-box { 
+            background: var(--card-bg); border-radius: 16px; padding: 20px; 
+            border: 1px solid var(--border); margin-bottom: 80px; 
+        }
         
-        .input-row { display: flex; gap: 10px; margin-bottom: 25px; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .input-row { display: flex; gap: 8px; }
+        
         input, select, textarea {
             background: #0f172a; border: 1px solid var(--border); color: white;
-            padding: 12px; border-radius: 8px; outline: none; flex: 1;
+            padding: 12px; border-radius: 10px; outline: none; font-size: 16px; /* 16px prevents iOS zoom */
         }
 
         .btn-main {
-            background: var(--primary); color: #000; border: none; padding: 10px 20px;
-            border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s;
+            background: var(--primary); color: #000; border: none; padding: 12px;
+            border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%;
         }
-        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* --- Dynamic Task List --- */
+        /* --- List Items --- */
         .task-item {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px; border-bottom: 1px solid var(--border); animation: fadeIn 0.3s ease;
+            padding: 15px 0; border-bottom: 1px solid var(--border);
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tag { font-size: 9px; padding: 3px 7px; border-radius: 5px; margin-right: 8px; background: #334155; }
 
-        .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; margin-right: 10px; }
-        .tag-work { background: #3730a3; }
-        .tag-personal { background: #065f46; }
+        /* --- MOBILE RESPONSIVE QUERIES --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%; height: 70px; bottom: 0; left: 0;
+                flex-direction: row; padding: 10px; border-right: none;
+                border-top: 1px solid var(--border); justify-content: space-around;
+            }
+            .logo, .timer-box { display: none; }
+            .nav-items { flex-direction: row; width: 100%; justify-content: space-around; }
+            .nav-item { padding: 8px; font-size: 12px; flex-direction: column; gap: 2px; }
+            
+            .main { margin-left: 0; padding: 20px; padding-bottom: 100px; }
+            .header h2 { font-size: 20px; }
+            .input-row { flex-direction: column; }
+        }
 
+        /* --- Timer Style --- */
+        .timer-box { margin-top: auto; background: #1e1b4b; padding: 15px; border-radius: 12px; text-align: center; }
+        #timer-display { font-size: 28px; font-weight: 800; color: var(--primary); margin: 5px 0; }
+        
+        .hidden { display: none !important; }
         .completed { opacity: 0.4; text-decoration: line-through; }
-
-        /* --- Timer Module --- */
-        .timer-box { text-align: center; margin-top: auto; padding: 20px; background: #1e1b4b; border-radius: 12px; }
-        #timer-display { font-size: 32px; font-weight: 800; color: var(--primary); margin: 10px 0; }
-
-        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="logo">IRTZA WORKSPACE</div>
-        <div class="nav-item active" onclick="showTab('tasks')">Dashboard</div>
-        <div class="nav-item" onclick="showTab('notes')">Research Logs</div>
+        <div class="logo">IRTZA PRO</div>
+        <div class="nav-items">
+            <div class="nav-item active" id="nav-tasks" onclick="showTab('tasks')">
+                <span>📋</span> Dashboard
+            </div>
+            <div class="nav-item" id="nav-notes" onclick="showTab('notes')">
+                <span>📝</span> Notes
+            </div>
+        </div>
         
         <div class="timer-box">
-            <small>FOCUS SESSION</small>
             <div id="timer-display">25:00</div>
-            <button class="btn-main" id="timerBtn" onclick="toggleTimer()" style="width: 100%;">START</button>
+            <button class="btn-main" id="timerBtn" onclick="toggleTimer()" style="padding: 8px;">START</button>
         </div>
     </div>
 
     <div class="main">
-        <div class="header">
+        <div class="header" style="margin-bottom: 20px;">
             <h2 id="view-title">Project Dashboard</h2>
-            <div id="current-date" style="color: #94a3b8;"></div>
+            <small id="current-date" style="color: #94a3b8;"></small>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <small>Active Tasks</small>
+                <small style="color: #94a3b8; font-size: 11px;">ACTIVE</small><br>
                 <span id="stat-active">0</span>
             </div>
             <div class="stat-card">
-                <small>Completion Rate</small>
+                <small style="color: #94a3b8; font-size: 11px;">DONE</small><br>
                 <span id="stat-rate">0%</span>
-            </div>
-            <div class="stat-card">
-                <small>Database Status</small>
-                <span style="color: #4ade80; font-size: 14px;">● ONLINE</span>
             </div>
         </div>
 
         <div id="tasks-view" class="content-box">
-            <div class="input-row">
-                <input type="text" id="taskIn" placeholder="Add a new project milestone...">
-                <select id="catIn" style="max-width: 120px;">
-                    <option value="work">Work</option>
-                    <option value="personal">Personal</option>
-                </select>
-                <button class="btn-main" onclick="db_addTask()">Add Task</button>
+            <div class="input-group">
+                <input type="text" id="taskIn" placeholder="New Task Name...">
+                <div class="input-row">
+                    <select id="catIn">
+                        <option value="work">💼 Work</option>
+                        <option value="personal">🏠 Personal</option>
+                    </select>
+                    <button class="btn-main" onclick="db_addTask()" style="flex: 2;">ADD</button>
+                </div>
             </div>
             <div id="taskList"></div>
         </div>
 
         <div id="notes-view" class="content-box hidden">
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <input type="text" id="noteTitle" placeholder="Research Topic...">
-                <textarea id="noteContent" rows="5" placeholder="Document your findings here..."></textarea>
-                <button class="btn-main" onclick="db_addNote()">Save To Database</button>
+            <div class="input-group">
+                <input type="text" id="noteTitle" placeholder="Title...">
+                <textarea id="noteContent" rows="4" placeholder="Start writing..."></textarea>
+                <button class="btn-main" onclick="db_addNote()">SAVE LOG</button>
             </div>
-            <div id="noteList" style="margin-top: 30px;"></div>
+            <div id="noteList"></div>
         </div>
     </div>
 
 <script>
-    // --- FULL STACK MOCK DATABASE ---
-    let appData = JSON.parse(localStorage.getItem('irtza_pro_db')) || {
-        tasks: [],
-        notes: []
-    };
+    let appData = JSON.parse(localStorage.getItem('irtza_mobile_db')) || { tasks: [], notes: [] };
 
     function syncDB() {
-        localStorage.setItem('irtza_pro_db', JSON.stringify(appData));
+        localStorage.setItem('irtza_mobile_db', JSON.stringify(appData));
         render();
     }
 
-    // --- TASK CONTROLLER ---
     function db_addTask() {
         const text = document.getElementById('taskIn').value;
         const cat = document.getElementById('catIn').value;
         if(!text) return;
-
-        appData.tasks.unshift({
-            id: Date.now(),
-            text: text,
-            category: cat,
-            done: false
-        });
+        appData.tasks.unshift({ id: Date.now(), text, category: cat, done: false });
         document.getElementById('taskIn').value = '';
+        syncDB();
+    }
+
+    function db_addNote() {
+        const title = document.getElementById('noteTitle').value;
+        const content = document.getElementById('noteContent').value;
+        if(!title || !content) return;
+        appData.notes.unshift({ id: Date.now(), title, content, date: new Date().toLocaleDateString() });
+        document.getElementById('noteTitle').value = '';
+        document.getElementById('noteContent').value = '';
         syncDB();
     }
 
@@ -172,91 +197,59 @@
     }
 
     function deleteTask(id) {
-        appData.tasks = appData.tasks.filter(t => t.id !== id);
-        syncDB();
+        if(confirm("Delete this?")) {
+            appData.tasks = appData.tasks.filter(t => t.id !== id);
+            syncDB();
+        }
     }
 
-    // --- NOTE CONTROLLER ---
-    function db_addNote() {
-        const title = document.getElementById('noteTitle').value;
-        const content = document.getElementById('noteContent').value;
-        if(!title || !content) return;
-
-        appData.notes.unshift({
-            id: Date.now(),
-            title,
-            content,
-            date: new Date().toLocaleDateString()
-        });
-        document.getElementById('noteTitle').value = '';
-        document.getElementById('noteContent').value = '';
-        syncDB();
-    }
-
-    // --- UI RENDERER ---
     function render() {
-        // Render Tasks
         const tList = document.getElementById('taskList');
         tList.innerHTML = appData.tasks.map(t => `
             <div class="task-item">
-                <div onclick="toggleTask(${t.id})" style="cursor:pointer; flex:1">
-                    <span class="tag tag-${t.category}">${t.category}</span>
+                <div onclick="toggleTask(${t.id})" style="flex:1">
+                    <span class="tag">${t.category}</span>
                     <span class="${t.done ? 'completed' : ''}">${t.text}</span>
                 </div>
-                <button style="background:transparent; border:none; color:#ef4444; cursor:pointer" onclick="deleteTask(${t.id})">Delete</button>
+                <button style="background:none; border:none; color:#ef4444; font-size:12px;" onclick="deleteTask(${t.id})">🗑️</button>
             </div>
         `).join('');
 
-        // Render Notes
         const nList = document.getElementById('noteList');
         nList.innerHTML = appData.notes.map(n => `
-            <div style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom:15px; border-left:4px solid var(--primary)">
-                <h4 style="margin:0 0 10px 0; color:var(--primary)">${n.title}</h4>
-                <p style="font-size:14px; color:#94a3b8">${n.content}</p>
-                <small style="opacity:0.5">${n.date}</small>
+            <div style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom:12px; border-left:3px solid var(--primary)">
+                <h4 style="margin:0; color:var(--primary); font-size:16px;">${n.title}</h4>
+                <p style="font-size:13px; color:#94a3b8; margin:8px 0;">${n.content}</p>
+                <small style="opacity:0.4; font-size:10px;">${n.date}</small>
             </div>
         `).join('');
 
-        // Update Stats
         const activeCount = appData.tasks.filter(t => !t.done).length;
-        const total = appData.tasks.length;
         document.getElementById('stat-active').innerText = activeCount;
-        document.getElementById('stat-rate').innerText = total === 0 ? '0%' : Math.round(((total - activeCount) / total) * 100) + '%';
+        document.getElementById('stat-rate').innerText = appData.tasks.length === 0 ? '0%' : 
+            Math.round(((appData.tasks.length - activeCount) / appData.tasks.length) * 100) + '%';
     }
 
-    // --- VIEW CONTROLLER ---
     function showTab(tab) {
         document.getElementById('tasks-view').classList.toggle('hidden', tab !== 'tasks');
         document.getElementById('notes-view').classList.toggle('hidden', tab !== 'notes');
+        document.getElementById('nav-tasks').classList.toggle('active', tab === 'tasks');
+        document.getElementById('nav-notes').classList.toggle('active', tab === 'notes');
         document.getElementById('view-title').innerText = tab === 'tasks' ? 'Project Dashboard' : 'Research Logs';
-        
-        document.querySelectorAll('.nav-item').forEach(el => {
-            el.classList.remove('active');
-            if(el.innerText.toLowerCase().includes(tab.slice(0,3))) el.classList.add('active');
-        });
     }
 
-    // --- TIMER LOGIC ---
     let timer;
     let timeLeft = 1500;
     function toggleTimer() {
         const btn = document.getElementById('timerBtn');
-        if (timer) {
-            clearInterval(timer);
-            timer = null;
-            btn.innerText = "START";
-        } else {
-            btn.innerText = "PAUSE";
+        if (timer) { clearInterval(timer); timer = null; btn.innerText = "START"; }
+        else {
+            btn.innerText = "STOP";
             timer = setInterval(() => {
                 timeLeft--;
-                let mins = Math.floor(timeLeft / 60);
-                let secs = timeLeft % 60;
-                document.getElementById('timer-display').innerText = 
-                    `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    alert("Focus session complete!");
-                }
+                let m = Math.floor(timeLeft/60), s = timeLeft%60;
+                document.getElementById('timer-display').innerText = `${m}:${s<10?'0':''}${s}`;
+                if(timeLeft<=0) { clearInterval(timer); alert("Time's up!"); }
             }, 1000);
         }
     }
